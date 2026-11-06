@@ -99,7 +99,7 @@ def creditos(terminal):
     if inicio < 0 or fin < inicio:
         raise ValueError("el terminal no tiene la columna de datos esperada")
     lineas = (
-        "Directed by Adrián Gonzalez", "Screenplay by AI", "Script supervisor: Claude", f"Starring {commits} commits",
+        "Directed by Adrián González", "Screenplay by AI", "Script supervisor: Claude", f"Starring {commits} commits",
         "Special effects: Angular", "Typed in TypeScript", "Stunts: Spring Boot", "Cold starts by AWS Lambda",
         "Legacy scenes: PHP", "Faction: Horde", "Weather: Donostia rain", "Zinemaldia: out of office",
         f"On GitHub since {alta}", "No bugs were harmed",
