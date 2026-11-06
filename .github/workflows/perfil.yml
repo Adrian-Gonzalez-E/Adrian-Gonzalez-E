@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  # Jobs separados: si falla el token de metrics, Galaga se sigue publicando.
+  # Jobs separados: si falla el del terminal, Galaga se sigue publicando.
   galaga:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -26,19 +26,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  stats:
+  terminal:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
     steps:
-      - uses: lowlighter/metrics@latest
+      - uses: actions/checkout@v4
+      # Fijada al commit de v1.0.0: proyecto joven con escritura en el repo y acceso al token.
+      - uses: monokernn/readme-atelier@9248beb14c734269c02f36a590617db7c3df15ad
         with:
           # PAT sin scopes: no dar nunca "repo", la imagen es pública.
           token: ${{ secrets.METRICS_TOKEN }}
-          user: ${{ github.repository_owner }}
-          filename: stats.svg
-          config_timezone: Europe/Madrid
-          base: header, activity, community, repositories
-          plugin_isocalendar: yes
-          plugin_isocalendar_duration: full-year

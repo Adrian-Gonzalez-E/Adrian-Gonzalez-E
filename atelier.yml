@@ -1,0 +1,8 @@
+theme: terminal
+name: Adrián Gonzalez
+tagline: Shipping code at work, running servers at home
+about:
+  - Frontend, backend, and whatever Lambda is doing
+  - The AI writes the script, I keep final cut
+  - "Self-hosting: because uptime is a hobby"
+sections: [header]
