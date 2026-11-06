@@ -40,6 +40,5 @@ jobs:
           filename: stats.svg
           config_timezone: Europe/Madrid
           base: header, activity, community, repositories
-          plugin_notable: yes
-          plugin_notable_from: all
-          plugin_notable_types: commit, pull_request
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
