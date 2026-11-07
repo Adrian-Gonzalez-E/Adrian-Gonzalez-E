@@ -25,8 +25,8 @@ jobs:
       contents: write
       issues: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: abozanona/pacman-contribution-graph@main
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: abozanona/pacman-contribution-graph@294c47eff28a41339a279107ae771b5fa020037a # main, 2026-11-01
         with:
           github_user_name: ${{ github.repository_owner }}
           games: galaga
@@ -55,7 +55,7 @@ jobs:
         env:
           BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
           SEASON: ${{ inputs.season }}
-      - uses: crazy-max/ghaction-github-pages@v3.1.0
+      - uses: crazy-max/ghaction-github-pages@c0d7ff0487ee0415efb7f32dab10ea880330b1dd # v3.1.0
         with:
           # Only main publishes the profile image; branches publish their own preview.
           target_branch: ${{ github.ref == 'refs/heads/main' && 'output' || format('preview-{0}', github.ref_name) }}
