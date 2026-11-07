@@ -34,7 +34,7 @@ flowchart LR
 
 ### End screen
 
-Galaga erases the last block right at the end of its animation cycle and then restarts. The script extends the cycle by a few seconds, so the board stays empty and the message appears exactly when the last block falls.
+Galaga erases the last block right at the end of its animation cycle and would then restart. The script plays it only once and freezes the empty board, so `ALL BUGS CLEARED` appears exactly when the last block falls, followed by a call to insert a coin. A coin adds to `COINS`, but the image cannot react per visitor: only reloading the page starts a new game.
 
 ### Insert coin
 

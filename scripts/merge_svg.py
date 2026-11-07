@@ -45,7 +45,7 @@ def scope_css(content):
 
 
 def merge(galaga, terminal, lvl, score, coins, season=None):
-    galaga, cycle, new_cycle = mission.extend_cycle(galaga)
+    galaga, cycle = mission.play_once(galaga)
     g_width, g_height, g_content = split_svg(galaga)
     t_width, t_height, t_content = split_svg(terminal)
     if TITLE.search(t_content) is None or (t_width, t_height) != (WIDTH, TERMINAL_HEIGHT) or CRT_LAYERS not in t_content or BORDER not in t_content:
@@ -72,7 +72,7 @@ def merge(galaga, terminal, lvl, score, coins, season=None):
         f'width="{WIDTH}" height="{total}" viewBox="0 0 {WIDTH} {total}" fill="none" role="img" '
         f'aria-label="Terminal window with Galaga played on my contribution graph and my profile">'
         f'{head}<g class="ra-term">{title.group(0)}</g>{mission.scoreboard(TITLE_BAR_HEIGHT, WIDTH, lvl, score, coins)}{screen}'
-        f'{mission.end_screen(game_y, WIDTH, extra, cycle, new_cycle)}'
+        f'{mission.end_screen(game_y, WIDTH, extra, cycle)}'
         f'<g class="ra-term" transform="translate(0 {extra + mission.SCOREBOARD_HEIGHT})">{body}</g>'
         f'{seasons.layer(season, WIDTH, TITLE_BAR_HEIGHT, total - TITLE_BAR_HEIGHT, game_y, extra)}{tail}</svg>'
     )
