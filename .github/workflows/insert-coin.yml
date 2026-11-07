@@ -1,0 +1,24 @@
+name: Insert coin
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  coin:
+    # Only the exact title counts. The issue body is never read, and no repository code runs here.
+    if: github.event.issue.title == 'INSERT COIN'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ISSUE: ${{ github.event.issue.number }}
+    steps:
+      - run: gh label create coin --color febc2e --description "A coin inserted in the profile" --force
+      - run: gh issue edit "$ISSUE" --add-label coin
+      - run: gh issue close "$ISSUE" --comment "🪙 Coin accepted! One coin counts per player. Your coin will reach the scoreboard in a few minutes."
+      - run: gh workflow run profile.yml --ref main

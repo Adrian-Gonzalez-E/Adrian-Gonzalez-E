@@ -23,7 +23,7 @@ TERMINAL = (
     '<rect x=".5" y=".5" width="839" height="299" rx="11.5"/></g></svg>'
 )
 
-output = merge(GALAGA, TERMINAL, 42, 400)
+output = merge(GALAGA, TERMINAL, 42, 400, 7)
 root = ET.fromstring(output)
 assert root.get("height") == "515" and root.get("width") == "840", root.attrib
 assert 'height="300"' not in output and 'height="299"' not in output
@@ -41,6 +41,7 @@ assert 'keyTimes="0;0.625;0.875"' in output and 'keyTimes="0;0.875"' in output a
 
 # Scoreboard and credits.
 assert ">42<" in output and ">400<" in output and "ENGINEER" in output and "HORDE" in output and "1UP" not in output
+assert "COINS" in output and ">7<" in output
 assert "Starring 392 commits" in output and "On GitHub since 2014" in output and "Donostia" in output
 assert "Stars" not in output and "username" not in output and 'x="548" y="262"' in output
 
@@ -52,7 +53,7 @@ for bad, reason in (("<g></g>", "not an SVG"),
                     ('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "no sizes"),
                     ('<svg width="840" height="300"><text>no markers</text></svg>', "other structure")):
     try:
-        merge(GALAGA, bad, 42, 400)
+        merge(GALAGA, bad, 42, 400, 7)
     except ValueError:
         continue
     raise AssertionError(reason)
@@ -62,7 +63,7 @@ for bad, reason in (('<svg width="1" height="1"><b></svg>', "no cycle"),
                     (GALAGA.replace("</svg>", "<script/></svg>"), "script"),
                     (GALAGA.replace('keyTimes="0;1"', 'keyTimes="0;0.5"'), "incomplete cycle")):
     try:
-        merge(bad, TERMINAL, 42, 400)
+        merge(bad, TERMINAL, 42, 400, 7)
     except (ValueError, ET.ParseError):
         continue
     raise AssertionError(reason)
