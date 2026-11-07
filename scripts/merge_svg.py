@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Puts Galaga inside the terminal header window, below the scoreboard.
 
-Usage: BIRTH_DATE=YYYY-MM-DD [SEASON=winter|zinemaldia] merge_svg.py galaga.svg terminal.svg calendar.json coins.txt output.svg
+Usage: BIRTH_DATE=YYYY-MM-DD [SEASON=winter|zinemaldia] merge_svg.py galaga.svg terminal.svg calendar.json coins.txt output.svg button.svg
 Fails without writing the output if the input format changes, so the last good image stays.
 The expected structure is that of readme-atelier v1.0.0, pinned in the workflow.
 """
@@ -12,6 +12,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
+import coin_button
 import mission_section as mission
 import seasons
 
@@ -83,9 +84,9 @@ def merge(galaga, terminal, lvl, score, coins, season=None):
 
 
 def main():
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 7:
         sys.exit(__doc__)
-    galaga, terminal, calendar, coins_file, destination = sys.argv[1:]
+    galaga, terminal, calendar, coins_file, destination, button_destination = sys.argv[1:]
     with open(galaga, encoding="utf-8") as f:
         g = f.read()
     with open(terminal, encoding="utf-8") as f:
@@ -99,6 +100,10 @@ def main():
     output = merge(g, t, lvl, score, coins, seasons.resolve(os.environ.get("SEASON", ""), today))
     with open(destination, "w", encoding="utf-8") as f:
         f.write(output)
+    # Same moment as the call to insert a coin on the end screen.
+    delay = mission.play_once(g)[1] + mission.SUCCESS_MS
+    with open(button_destination, "w", encoding="utf-8") as f:
+        f.write(coin_button.button(delay))
 
 
 if __name__ == "__main__":

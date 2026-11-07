@@ -29,6 +29,7 @@ flowchart LR
 | Terminal window | [`monokernn/readme-atelier`](https://github.com/monokernn/readme-atelier), pinned to a commit and configured in `atelier.yml` |
 | Scoreboard, end screen and credits | `scripts/mission_section.py` |
 | Seasons | `scripts/seasons.py` |
+| Insert coin button | `scripts/coin_button.py` |
 
 `scripts/merge_svg.py` nests Galaga inside the terminal window. If an input changes format, it fails without writing anything and the last good image stays online.
 
@@ -38,7 +39,7 @@ Galaga erases the last block right at the end of its animation cycle and would t
 
 ### Insert coin
 
-The link under the image opens a pre-filled issue. `insert-coin.yml` runs only when the title is exactly `INSERT COIN`: it labels the issue, closes it and requests a new image. The scoreboard counts unique authors of labeled issues, so each player adds one coin. The workflow never reads the issue body, and it runs no repository code.
+The button under the image opens a pre-filled issue. It stays off during the game and lights up when the game asks for a coin: the workflow generates `insert-coin.svg` with that delay, since the length of the game changes between runs. Both images load separately, so they can be slightly out of sync. `insert-coin.yml` runs only when the title is exactly `INSERT COIN`: it labels the issue, closes it and requests a new image. The scoreboard counts unique authors of labeled issues, so each player adds one coin. The workflow never reads the issue body, and it runs no repository code.
 
 ### Seasons
 
@@ -54,7 +55,7 @@ Snow falls from 1 December to 6 January, and a film strip plays from 15 to 30 Se
 ## Limits
 
 - The image is not real time. It changes when the workflow runs, and GitHub caches it for about 5 minutes.
-- The animation restarts when the image loads, and the end screen appears about 83 seconds later, depending on the number of contributions.
+- The animation restarts when the image loads, and the end screen appears about 90 to 100 seconds later. The exact time changes between runs.
 - `merge_svg.py` relies on the SVG structure of the pinned `readme-atelier` commit.
 
 ## Reuse it

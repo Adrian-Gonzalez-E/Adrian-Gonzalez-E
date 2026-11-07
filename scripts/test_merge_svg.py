@@ -3,6 +3,7 @@
 from datetime import date
 import xml.etree.ElementTree as ET
 
+import coin_button
 import mission_section as mission
 import seasons
 from merge_svg import merge
@@ -89,5 +90,12 @@ for bad, reason in (('<svg width="1" height="1"><b></svg>', "no cycle"),
     except (ValueError, ET.ParseError):
         continue
     raise AssertionError(reason)
+
+# Button: off until the given moment, then lit; the path of the text is shared by both states.
+lit = coin_button.button(87400)
+assert lit.count('<set attributeName="opacity" to="1" begin="87400ms" fill="freeze"/>') == 2
+assert lit.index('fill="#6b5a2a"') < lit.index('fill="#febc2e"') and "<script" not in lit and 'role="img"' in lit
+assert '<set attributeName="opacity" to="0" begin="87400ms" fill="freeze"/>' in lit
+assert lit.count('fill="#febc2e"') == 1 and lit.count('fill="#6b5a2a"') == 1
 
 print("ok")
