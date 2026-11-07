@@ -51,7 +51,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       # The date lives in a Secret: the repo is public and only the age is published.
-      - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json coins.txt dist/profile.svg
+      - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json coins.txt dist/profile.svg dist/insert-coin.svg
         env:
           BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
           SEASON: ${{ inputs.season }}
