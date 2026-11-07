@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Puts Galaga inside the terminal header window, below the scoreboard.
 
-Usage: BIRTH_DATE=YYYY-MM-DD merge_svg.py galaga.svg terminal.svg calendar.json coins.txt output.svg
+Usage: BIRTH_DATE=YYYY-MM-DD [SEASON=winter|zinemaldia] merge_svg.py galaga.svg terminal.svg calendar.json coins.txt output.svg
 Fails without writing the output if the input format changes, so the last good image stays.
 The expected structure is that of readme-atelier v1.0.0, pinned in the workflow.
 """
@@ -13,6 +13,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 import mission_section as mission
+import seasons
 
 WIDTH = 840
 TERMINAL_HEIGHT = 300
@@ -43,7 +44,7 @@ def scope_css(content):
     return re.sub(r"(<style\b[^>]*>)(.*?)(</style>)", scope, content, flags=re.S)
 
 
-def merge(galaga, terminal, lvl, score, coins):
+def merge(galaga, terminal, lvl, score, coins, season=None):
     galaga, cycle, new_cycle = mission.extend_cycle(galaga)
     g_width, g_height, g_content = split_svg(galaga)
     t_width, t_height, t_content = split_svg(terminal)
@@ -72,7 +73,8 @@ def merge(galaga, terminal, lvl, score, coins):
         f'aria-label="Terminal window with Galaga played on my contribution graph and my profile">'
         f'{head}<g class="ra-term">{title.group(0)}</g>{mission.scoreboard(TITLE_BAR_HEIGHT, WIDTH, lvl, score, coins)}{screen}'
         f'{mission.end_screen(game_y, WIDTH, extra, cycle, new_cycle)}'
-        f'<g class="ra-term" transform="translate(0 {extra + mission.SCOREBOARD_HEIGHT})">{body}</g>{tail}</svg>'
+        f'<g class="ra-term" transform="translate(0 {extra + mission.SCOREBOARD_HEIGHT})">{body}</g>'
+        f'{seasons.layer(season, WIDTH, TITLE_BAR_HEIGHT, total - TITLE_BAR_HEIGHT, game_y, extra)}{tail}</svg>'
     )
     ET.fromstring(output)  # Broken XML: better to fail than publish a broken image.
     if "<script" in output:
@@ -92,8 +94,9 @@ def main():
         score = json.load(f)["data"]["user"]["contributionsCollection"]["contributionCalendar"]["totalContributions"]
     with open(coins_file, encoding="utf-8") as f:
         coins = int(f.read())
-    lvl = mission.age(os.environ["BIRTH_DATE"], date.today())
-    output = merge(g, t, lvl, score, coins)
+    today = date.today()
+    lvl = mission.age(os.environ["BIRTH_DATE"], today)
+    output = merge(g, t, lvl, score, coins, seasons.resolve(os.environ.get("SEASON", ""), today))
     with open(destination, "w", encoding="utf-8") as f:
         f.write(output)
 

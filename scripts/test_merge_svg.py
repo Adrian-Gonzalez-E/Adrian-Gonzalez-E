@@ -4,6 +4,7 @@ from datetime import date
 import xml.etree.ElementTree as ET
 
 import mission_section as mission
+import seasons
 from merge_svg import merge
 
 GALAGA = ('<svg width="1166" height="259" xmlns="http://www.w3.org/2000/svg"><text>Nov</text>'
@@ -44,6 +45,23 @@ assert ">42<" in output and ">400<" in output and "ENGINEER" in output and "HORD
 assert "COINS" in output and ">7<" in output
 assert "Starring 392 commits" in output and "On GitHub since 2014" in output and "Donostia" in output
 assert "Stars" not in output and "username" not in output and 'x="548" y="262"' in output
+
+# Seasons: exact limits, forced preview and valid XML; nothing is added outside of them.
+assert seasons.current(date(2030, 11, 30)) is None and seasons.current(date(2030, 12, 1)) == "winter"
+assert seasons.current(date(2031, 1, 6)) == "winter" and seasons.current(date(2031, 1, 7)) is None
+assert seasons.current(date(2030, 9, 14)) is None and seasons.current(date(2030, 9, 15)) == "zinemaldia"
+assert seasons.current(date(2030, 10, 1)) is None
+assert seasons.resolve("auto", date(2030, 6, 1)) is None and seasons.resolve("", date(2030, 12, 1)) == "winter"
+assert seasons.resolve("winter", date(2030, 6, 1)) == "winter"
+try:
+    seasons.resolve("summer", date(2030, 6, 1))
+    raise AssertionError("unknown season accepted")
+except ValueError:
+    pass
+assert "<circle" not in output and "ZINEMALDIA" not in output
+for season, mark in (("winter", "<circle"), ("zinemaldia", "ZINEMALDIA SEASON")):
+    themed = merge(GALAGA, TERMINAL, 42, 400, 7, season)
+    assert mark in themed and themed.index(mark) < themed.index("url(#ra-scan)\"/>"), season
 
 # Age: changes exactly on the birthday.
 assert mission.age("2000-06-15", date(2030, 6, 14)) == 29
