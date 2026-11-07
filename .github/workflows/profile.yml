@@ -7,12 +7,17 @@ on:
   push:
     branches: [main]
 
+# A burst of coins queues a single regeneration instead of one per coin.
+concurrency:
+  group: profile-${{ github.ref }}
+
 jobs:
   profile:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
+      issues: read
     steps:
       - uses: actions/checkout@v4
       - uses: abozanona/pacman-contribution-graph@main
@@ -32,8 +37,15 @@ jobs:
           > calendar.json
         env:
           GH_TOKEN: ${{ secrets.METRICS_TOKEN }}
+      # One coin per player: repeated issues from one account do not inflate the counter.
+      - run: >-
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues?labels=coin&state=all&per_page=100"
+          --jq '.[].user.login' | sort -u | wc -l > coins.txt
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
       # The date lives in a Secret: the repo is public and only the age is published.
-      - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json dist/profile.svg
+      - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json coins.txt dist/profile.svg
         env:
           BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
       - uses: crazy-max/ghaction-github-pages@v3.1.0
