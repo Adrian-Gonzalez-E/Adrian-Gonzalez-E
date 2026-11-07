@@ -58,8 +58,9 @@ try:
     raise AssertionError("unknown season accepted")
 except ValueError:
     pass
-assert "<circle" not in output and "ZINEMALDIA" not in output
-for season, mark in (("winter", "<circle"), ("zinemaldia", "ZINEMALDIA SEASON")):
+SNOW_MARK = 'attributeName="cy" from="26"'  # Galaga also uses circles: only snow starts at this height.
+assert SNOW_MARK not in output and "ZINEMALDIA" not in output
+for season, mark in (("winter", SNOW_MARK), ("zinemaldia", "ZINEMALDIA SEASON")):
     themed = merge(GALAGA, TERMINAL, 42, 400, 7, season)
     assert mark in themed and themed.index(mark) < themed.index("url(#ra-scan)\"/>"), season
 
