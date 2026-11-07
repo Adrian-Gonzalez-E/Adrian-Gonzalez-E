@@ -1,8 +1,10 @@
 """Date-based seasonal layers: snow in winter and a film strip during Zinemaldia."""
+import math
 import random
 
 SEASONS = ("winter", "zinemaldia")
-SNOWFLAKES = 45
+SNOWFLAKES = 26
+FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
 THEMES = {"winter": "#9fe8ff", "zinemaldia": "#f5c542"}
 
@@ -25,15 +27,35 @@ def resolve(forced, today):
     return forced
 
 
+def flake_path():
+    """Six-armed snowflake drawn as a vector, so it does not depend on the viewer's fonts or emoji."""
+    segments = []
+    for degrees in range(0, 360, 60):
+        arm = math.radians(degrees)
+        tip = (FLAKE_RADIUS * math.cos(arm), FLAKE_RADIUS * math.sin(arm))
+        fork = (FLAKE_RADIUS * .6 * math.cos(arm), FLAKE_RADIUS * .6 * math.sin(arm))
+        segments.append(f"M0 0L{tip[0]:.1f} {tip[1]:.1f}")
+        for side in (-1, 1):
+            branch = arm + side * math.radians(50)
+            segments.append(f"M{fork[0]:.1f} {fork[1]:.1f}l{2.5 * math.cos(branch):.1f} {2.5 * math.sin(branch):.1f}")
+    return "".join(segments)
+
+
 def snow(width, top, height):
     rng = random.Random(7)  # Fixed seed: daily regenerations do not change the image without a reason.
-    flakes = []
+    flakes = [f'<defs><path id="season-flake" d="{flake_path()}" fill="none" stroke="#dff6ff" '
+              f'stroke-width="1.2" stroke-linecap="round"/></defs>']
     for _ in range(SNOWFLAKES):
-        duration = rng.uniform(7, 16)
+        x = rng.uniform(0, width)
+        duration = rng.uniform(9, 18)
+        spin = rng.choice((-1, 1)) * 360
         flakes.append(
-            f'<circle cx="{rng.uniform(0, width):.0f}" r="{rng.uniform(.8, 2.2):.1f}" fill="#fff" '
-            f'opacity="{rng.uniform(.35, .85):.2f}"><animate attributeName="cy" from="{top - 4}" to="{top + height + 4}" '
-            f'dur="{duration:.1f}s" begin="-{rng.uniform(0, duration):.1f}s" repeatCount="indefinite"/></circle>'
+            f'<g opacity="{rng.uniform(.65, 1):.2f}"><animateTransform attributeName="transform" type="translate" '
+            f'from="{x:.0f} {top - 10}" to="{x:.0f} {top + height + 10}" dur="{duration:.1f}s" '
+            f'begin="-{rng.uniform(0, duration):.1f}s" repeatCount="indefinite"/>'
+            f'<g><animateTransform attributeName="transform" type="rotate" from="0" to="{spin}" '
+            f'dur="{rng.uniform(8, 16):.1f}s" repeatCount="indefinite"/>'
+            f'<use href="#season-flake" transform="scale({rng.uniform(.65, 1.35):.2f})"/></g></g>'
         )
     return "".join(flakes)
 

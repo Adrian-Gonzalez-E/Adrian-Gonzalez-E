@@ -58,7 +58,7 @@ try:
     raise AssertionError("unknown season accepted")
 except ValueError:
     pass
-SNOW_MARK = 'attributeName="cy" from="26"'  # Galaga also uses circles: only snow starts at this height.
+SNOW_MARK = 'id="season-flake"'
 assert SNOW_MARK not in output and "ZINEMALDIA" not in output
 for season, mark in (("winter", SNOW_MARK), ("zinemaldia", "ZINEMALDIA SEASON")):
     themed = merge(GALAGA, TERMINAL, 42, 400, 7, season)
