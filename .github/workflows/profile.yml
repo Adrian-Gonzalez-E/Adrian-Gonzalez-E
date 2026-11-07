@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:
+    inputs:
+      season:
+        description: Season to force in this run, to preview it on any date
+        type: choice
+        options: [auto, winter, zinemaldia]
+        default: auto
   push:
     branches: [main]
 
@@ -48,6 +54,7 @@ jobs:
       - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json coins.txt dist/profile.svg
         env:
           BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
+          SEASON: ${{ inputs.season }}
       - uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           # Only main publishes the profile image; branches publish their own preview.
