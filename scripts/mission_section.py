@@ -58,10 +58,8 @@ def scoreboard(y, width, lvl, score, coins):
 
     return (
         f'<g class="ra-term"><rect y="{y}" width="{width}" height="{SCOREBOARD_HEIGHT}" fill="#000"/>'
-        f'{item(20, "LVL", lvl)}{item(110, "SCORE", score)}{item(240, "CLASS", "ENGINEER")}{item(395, "FACTION", "HORDE")}'
-        f'{item(540, "COINS", coins)}'
-        f'<text x="{width - 20}" y="{baseline}" text-anchor="end" class="ra-mb" fill="#febc2e" style="font-size:14px">INSERT COIN'
-        f'<animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/></text></g>'
+        f'{item(20, "LVL", lvl)}{item(150, "SCORE", score)}{item(310, "CLASS", "ENGINEER")}{item(510, "FACTION", "HORDE")}'
+        f'{item(710, "COINS", coins)}</g>'
     )
 
 
