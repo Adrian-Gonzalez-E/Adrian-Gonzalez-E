@@ -35,15 +35,17 @@ assert ".ra-fg{fill:green}" in output and ".ra-term .ra-fg" not in output
 order = [output.index(t) for t in ("title", "SCORE", "Nov", "ALL BUGS CLEARED", 'translate(0 215)', "whoami", "url(#ra-scan)")]
 assert order == sorted(order), order
 
-# Cycle: the board stays empty during the pause and unrelated animations do not change.
-assert 'dur="16000ms"' in output and 'keyTimes="0;0.625;1"' in output
-assert 'values="#0e4429;transparent;transparent"' in output and 'dur="5991ms"' in output
-assert 'keyTimes="0;0.625;0.875"' in output and 'keyTimes="0;0.875"' in output and "DEPLOYING TO PROD..." in output
+# A single game: its last frame freezes, and unrelated animations keep looping.
+assert 'dur="10000ms" repeatCount="1" fill="freeze"' in output and 'values="#0e4429;transparent" keyTimes="0;1"' in output
+assert 'dur="5991ms" repeatCount="indefinite"' in output
+# End screen: success when the last block falls, then the call to insert a coin stays.
+assert 'keyTimes="0;0.714286;1"' in output and 'dur="14000ms" fill="freeze"' in output
+assert '<set attributeName="opacity" to="1" begin="14000ms" fill="freeze"/>' in output
+assert "INSERT COIN TO CONTINUE" in output and "DEPLOYING" not in output
 
 # Scoreboard and credits.
 assert ">42<" in output and ">400<" in output and "ENGINEER" in output and "HORDE" in output and "1UP" not in output
-assert "COINS" in output and ">7<" in output and "INSERT COIN" not in output
-assert "Starring 392 commits" in output and "On GitHub since 2014" in output and "Donostia" in output
+assert "COINS" in output and ">7<" in outputassert "Starring 392 commits" in output and "On GitHub since 2014" in output and "Donostia" in output
 assert "Stars" not in output and "username" not in output and 'x="548" y="262"' in output
 
 # Seasons: exact limits, forced preview and valid XML; nothing is added outside of them.

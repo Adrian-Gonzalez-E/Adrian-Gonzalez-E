@@ -5,8 +5,7 @@ from html import escape
 import re
 
 SCOREBOARD_HEIGHT = 28
-PAUSE_MS = 6000
-SUCCESS_MS = 4000  # The rest of the pause shows the restart message.
+SUCCESS_MS = 4000
 ANIMATION = re.compile(r"<animate(?:Transform)?\b[^>]*>", re.S)
 DATA_START = '<text x="548" y="66"'
 DATA_END = '<rect x="548" y="262"'
@@ -20,33 +19,28 @@ def age(birth_date, today):
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 
-def extend_cycle(galaga):
-    """Holds the empty board PAUSE_MS at the end of the cycle. Returns (svg, original cycle, new cycle) in ms."""
+def play_once(galaga):
+    """Plays the game a single time and freezes its last frame. Returns (svg, cycle in ms). Stars keep moving."""
     tags = [t for t in ANIMATION.findall(galaga) if "keyTimes=" in t]
     durations = Counter(re.search(r'dur="(\d+)ms"', t).group(1) for t in tags if re.search(r'dur="\d+ms"', t))
     if not durations:
         raise ValueError("Galaga has no recognizable cycle")
     cycle = int(durations.most_common(1)[0][0])
-    new_cycle = cycle + PAUSE_MS
 
-    def adjust(match):
+    def freeze(match):
         tag = match.group(0)
         if f'dur="{cycle}ms"' not in tag:
             return tag
         times = re.search(r'keyTimes="([^"]+)"', tag)
         values = re.search(r'values="([^"]+)"', tag)
-        if not times or not values:
-            raise ValueError("Galaga animation without keyTimes or values")
-        t = [float(x) for x in times.group(1).split(";")]
-        v = values.group(1).split(";")
-        if len(t) != len(v) or t[-1] != 1:
+        if not times or not values or 'repeatCount="indefinite"' not in tag:
+            raise ValueError("Galaga animation without keyTimes, values or repeatCount")
+        t = times.group(1).split(";")
+        if len(t) != len(values.group(1).split(";")) or float(t[-1]) != 1:
             raise ValueError("Galaga animation with unexpected format")
-        scaled = ";".join(f"{x * cycle / new_cycle:.6g}" for x in t) + ";1"
-        tag = tag.replace(times.group(0), f'keyTimes="{scaled}"')
-        tag = tag.replace(values.group(0), f'values="{values.group(1)};{v[-1]}"')
-        return tag.replace(f'dur="{cycle}ms"', f'dur="{new_cycle}ms"')
+        return tag.replace('repeatCount="indefinite"', 'repeatCount="1" fill="freeze"')
 
-    return ANIMATION.sub(adjust, galaga), cycle, new_cycle
+    return ANIMATION.sub(freeze, galaga), cycle
 
 
 def scoreboard(y, width, lvl, score, coins):
@@ -63,22 +57,20 @@ def scoreboard(y, width, lvl, score, coins):
     )
 
 
-def end_screen(y, width, height, cycle, new_cycle):
-    """Appears right when the last block falls, during the extend_cycle pause."""
-    start = cycle / new_cycle
-    switch = (cycle + SUCCESS_MS) / new_cycle
+def end_screen(y, width, height, cycle):
+    """Shows the success message when the last block falls, then stays on the call to insert a coin."""
+    success_end = cycle + SUCCESS_MS
     center = width / 2
-
-    def phase(text, color, size, values, times):
-        return (f'<text x="{center:g}" y="{y + height / 2 + size / 3:g}" text-anchor="middle" class="ra-mb" fill="{color}" '
-                f'style="font-size:{size}px" opacity="0">{text}<animate attributeName="opacity" values="{values}" '
-                f'keyTimes="{times}" calcMode="discrete" dur="{new_cycle}ms" repeatCount="indefinite"/></text>')
-
+    middle = y + height / 2
     return (
-        '<g class="ra-term">'
-        + phase("ALL BUGS CLEARED", "#7cff9b", 40, "0;1;0", f"0;{start:.6g};{switch:.6g}")
-        + phase("DEPLOYING TO PROD...", "#febc2e", 28, "0;1", f"0;{switch:.6g}")
-        + '</g>'
+        f'<g class="ra-term"><text x="{center:g}" y="{middle + 13:g}" text-anchor="middle" class="ra-mb" fill="#7cff9b" '
+        f'style="font-size:40px" opacity="0">ALL BUGS CLEARED<animate attributeName="opacity" values="0;1;0" '
+        f'keyTimes="0;{cycle / success_end:.6g};1" calcMode="discrete" dur="{success_end}ms" fill="freeze"/></text>'
+        f'<g opacity="0"><set attributeName="opacity" to="1" begin="{success_end}ms" fill="freeze"/><g>'
+        f'<animate attributeName="opacity" values="1;.25;1" dur="1.2s" repeatCount="indefinite"/>'
+        f'<text x="{center:g}" y="{middle:g}" text-anchor="middle" class="ra-mb" fill="#febc2e" style="font-size:26px">'
+        f'INSERT COIN TO CONTINUE</text>'
+        f'<path d="M{center - 10:g} {middle + 14:g}h20l-10 12z" fill="#febc2e"/></g></g></g>'
     )
 
 
