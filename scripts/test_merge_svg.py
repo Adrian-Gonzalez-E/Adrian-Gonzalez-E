@@ -41,7 +41,7 @@ assert 'keyTimes="0;0.625;0.875"' in output and 'keyTimes="0;0.875"' in output a
 
 # Scoreboard and credits.
 assert ">42<" in output and ">400<" in output and "ENGINEER" in output and "HORDE" in output and "1UP" not in output
-assert "COINS" in output and ">7<" in output
+assert "COINS" in output and ">7<" in output and "INSERT COIN" not in output
 assert "Starring 392 commits" in output and "On GitHub since 2014" in output and "Donostia" in output
 assert "Stars" not in output and "username" not in output and 'x="548" y="262"' in output
 
