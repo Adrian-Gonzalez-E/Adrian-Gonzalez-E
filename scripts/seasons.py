@@ -46,6 +46,7 @@ def film_strip(y, width):
     return (
         f'<rect y="{y}" width="{width}" height="{STRIP_HEIGHT}" fill="#120e02"/>'
         f'<g><animateTransform attributeName="transform" type="translate" from="0 0" to="21 0" dur="1s" repeatCount="indefinite"/>{holes}</g>'
+        f'<rect x="{width / 2 - 125:g}" y="{y}" width="250" height="{STRIP_HEIGHT}" fill="#120e02"/>'
         f'<text x="{width / 2:g}" y="{y + 13}" text-anchor="middle" class="ra-mb" fill="#f5c542" style="font-size:11px">'
         f'ZINEMALDIA SEASON · DONOSTIA</text>'
     )
@@ -60,5 +61,6 @@ def layer(season, width, top, height, game_y, game_height):
     if season == "winter":
         art = snow(width, top, height)
     else:
-        art = film_strip(game_y + game_height - STRIP_HEIGHT, width)
+        # Just below the game: inside it, the strip would cover the ship.
+        art = film_strip(game_y + game_height, width)
     return f'{theme}<g class="ra-term">{art}</g>'
