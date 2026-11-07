@@ -56,9 +56,9 @@ def button(delay_ms):
         f'<ellipse rx="6" ry="6" fill="none" stroke="#a87408" stroke-width="1.5"/></g></g></g>'
         f'<rect x="{SLOT_X - 8}" y="{SLOT_Y - 3}" width="16" height="{SLOT_HEIGHT + 6}" rx="3" fill="#3a3f47" stroke="#0a0b0d"/>'
         f'<rect x="{SLOT_X - 1.5:g}" y="{SLOT_Y}" width="3" height="{SLOT_HEIGHT}" rx="1.5" fill="#000"/>'
-        # The dim text stays readable during the game; the lit one covers it at the end.
-        f'<path d="{text}" fill="#6b5a2a"/>'
-        f'<g opacity="0">{switch_on}<rect x="{TEXT_X - 2}" y="18" width="{WIDTH - TEXT_X - 8}" height="28" fill="#15181c"/>'
+        # The dim text stays readable during the game; the lit one replaces it at the end.
+        f'<path d="{text}" fill="#6b5a2a"><set attributeName="opacity" to="0" begin="{delay_ms}ms" fill="freeze"/></path>'
+        f'<g opacity="0">{switch_on}'
         f'<path d="{text}" fill="#febc2e"><animate attributeName="opacity" values="1;1;.15;.15;1" keyTimes="0;.55;.56;.95;1" '
         f'dur="1.2s" repeatCount="indefinite"/></path></g>'
         f'</svg>\n'
