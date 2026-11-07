@@ -1,4 +1,4 @@
-name: Perfil
+name: Profile
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  perfil:
+  profile:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -19,26 +19,26 @@ jobs:
         with:
           github_user_name: ${{ github.repository_owner }}
           games: galaga
-      # Fijada al commit de v1.0.0: proyecto joven con escritura en el repo y acceso al token.
+      # Pinned to the v1.0.0 commit: young project with write access to the repo and access to the token.
       - uses: monokernn/readme-atelier@9248beb14c734269c02f36a590617db7c3df15ad
         with:
-          # PAT sin scopes: no dar nunca "repo", la imagen es pública.
+          # Scopeless PAT: never grant "repo", the image is public.
           token: ${{ secrets.METRICS_TOKEN }}
-          # Solo interesa su SVG: el README y el main no se tocan.
+          # Only its SVG matters: README and main stay untouched.
           commit: 'false'
       - run: >-
           gh api graphql -f login="$GITHUB_REPOSITORY_OWNER" -f query='query($login:String!){user(login:$login){
           contributionsCollection{contributionCalendar{totalContributions}}}}'
-          > calendario.json
+          > calendar.json
         env:
           GH_TOKEN: ${{ secrets.METRICS_TOKEN }}
-      # La fecha va en un Secret: el repo es público y solo se publica la edad.
-      - run: python3 scripts/unir_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendario.json dist/perfil.svg
+      # The date lives in a Secret: the repo is public and only the age is published.
+      - run: python3 scripts/merge_svg.py dist/galaga-contribution-graph-dark.svg atelier/header.svg calendar.json dist/profile.svg
         env:
-          FECHA_NACIMIENTO: ${{ secrets.FECHA_NACIMIENTO }}
+          BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
       - uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
-          # Solo main publica en la imagen del perfil; las ramas, en su vista previa.
+          # Only main publishes the profile image; branches publish their own preview.
           target_branch: ${{ github.ref == 'refs/heads/main' && 'output' || format('preview-{0}', github.ref_name) }}
           build_dir: dist
         env:
