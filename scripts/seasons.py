@@ -1,17 +1,21 @@
-"""Date-based seasonal layers: snow in winter and a film strip during Zinemaldia."""
+"""Date-based seasonal layers: snow in winter, waves in summer and a film strip during Zinemaldia."""
 import math
 import random
 
-SEASONS = ("winter", "zinemaldia")
+SEASONS = ("winter", "summer", "zinemaldia")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
-THEMES = {"winter": "#9fe8ff", "zinemaldia": "#f5c542"}
+WAVE_LENGTH = 40
+THEMES = {"winter": "#9fe8ff", "summer": "#ffb627", "zinemaldia": "#f5c542"}
 
 
 def current(today):
     if today.month == 12 or (today.month == 1 and today.day <= 6):
         return "winter"
+    # The first week of summer, from the June solstice.
+    if today.month == 6 and 21 <= today.day <= 27:
+        return "summer"
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
@@ -74,6 +78,23 @@ def film_strip(y, width):
     )
 
 
+def wave_strip(y, width):
+    """Two rows of waves rolling in opposite directions, like La Concha beach."""
+    def wave(level, color, seconds, direction):
+        crests = "".join(f"q{WAVE_LENGTH / 4:g} -4 {WAVE_LENGTH / 2:g} 0t{WAVE_LENGTH / 2:g} 0"
+                         for _ in range(width // WAVE_LENGTH + 3))
+        return (f'<g><animateTransform attributeName="transform" type="translate" from="0 0" '
+                f'to="{direction * WAVE_LENGTH} 0" dur="{seconds}s" repeatCount="indefinite"/>'
+                f'<path d="M-{WAVE_LENGTH} {y + level}{crests}" stroke="{color}" stroke-width="1.5" fill="none"/></g>')
+    return (
+        f'<rect y="{y}" width="{width}" height="{STRIP_HEIGHT}" fill="#021624"/>'
+        f'{wave(7, "#3a8fd6", 3, 1)}{wave(13, "#7fd3ff", 2, -1)}'
+        f'<rect x="{width / 2 - 125:g}" y="{y}" width="250" height="{STRIP_HEIGHT}" fill="#021624"/>'
+        f'<text x="{width / 2:g}" y="{y + 13}" text-anchor="middle" class="ra-mb" fill="#ffb627" style="font-size:11px">'
+        f'SUMMER IS HERE · UDA</text>'
+    )
+
+
 def layer(season, width, top, height, game_y, game_height):
     """Returns the SVG of the season, or nothing outside of them. Sits under the CRT layers."""
     if season is None:
@@ -82,6 +103,8 @@ def layer(season, width, top, height, game_y, game_height):
     theme = f'<style>.ra-term .ra-acc{{fill:{color}}}.ra-term .ra-cur{{fill:{color}}}</style>'
     if season == "winter":
         art = snow(width, top, height)
+    elif season == "summer":
+        art = wave_strip(game_y + game_height, width)
     else:
         # Just below the game: inside it, the strip would cover the ship.
         art = film_strip(game_y + game_height, width)
