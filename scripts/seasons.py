@@ -1,8 +1,8 @@
-"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, summer waves, a film strip for Zinemaldia, falling leaves in autumn and bats for Halloween."""
+"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, summer waves, Semana Grande fireworks, a film strip for Zinemaldia, falling leaves in autumn and bats for Halloween."""
 import math
 import random
 
-SEASONS = ("winter", "spring", "tamborrada", "summer", "zinemaldia", "autumn", "halloween")
+SEASONS = ("winter", "spring", "tamborrada", "summer", "semana-grande", "zinemaldia", "autumn", "halloween")
 SNOWFLAKES = 26
 LEAVES = 18
 LEAF_COLORS = ("#c8553d", "#e08e2b", "#d9b23f", "#8c3b1e")
@@ -12,10 +12,13 @@ FLOWER_GAP = 20
 PETALS = ("#ff9ecf", "#fff4f8", "#c9a7ff")
 DRUMS = 24
 WAVE_LENGTH = 40
+FIREWORKS = 8
+SPARKS = 14
+SPARK_COLORS = ("#ff4d6d", "#ffd23f", "#4dd9ff", "#9dff6a", "#ff9ef0", "#ffffff")
 BATS = 9
 # Right wing with a scalloped edge; the left one is its mirror.
 WING = "M1-1Q6-6 13-3Q10-1 10 2Q8 0 6 2Q4 0 1 2Z"
-THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "summer": "#ffb627", "zinemaldia": "#f5c542", "autumn": "#e08e2b", "halloween": "#ff7518"}
+THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "summer": "#ffb627", "semana-grande": "#ff4d6d", "zinemaldia": "#f5c542", "autumn": "#e08e2b", "halloween": "#ff7518"}
 
 
 def current(today):
@@ -30,6 +33,9 @@ def current(today):
     # The first week of summer, from the June solstice.
     if today.month == 6 and 21 <= today.day <= 27:
         return "summer"
+    # shortcut: fixed window around 15 August, while the festival week moves each year; adjust it if it moves out of it.
+    if today.month == 8 and 10 <= today.day <= 17:
+        return "semana-grande"
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
@@ -190,6 +196,30 @@ def wave_strip(y, width):
     )
 
 
+def fireworks(width, top, height):
+    """Bursts of sparks that open and fade at different places and times, like the fireworks over La Concha."""
+    rng = random.Random(15)  # Fixed seed, like the snow.
+    sparks = "".join(
+        f'<path d="M{6 * math.cos(math.radians(a)):.1f} {6 * math.sin(math.radians(a)):.1f}'
+        f'L{30 * math.cos(math.radians(a)):.1f} {30 * math.sin(math.radians(a)):.1f}"/>'
+        for a in range(0, 360, 360 // SPARKS)
+    )
+    items = [f'<defs><g id="season-burst" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 5">{sparks}</g></defs>']
+    for _ in range(FIREWORKS):
+        x, y = rng.uniform(40, width - 40), rng.uniform(top + 40, top + height - 40)
+        duration = rng.uniform(2.5, 4)
+        begin = f'begin="-{rng.uniform(0, duration):.1f}s"'
+        # Opens in the first 40% of the cycle and stays dark for the rest, until the next burst.
+        timing = f'keyTimes="0;.4;1" dur="{duration:.1f}s" {begin} repeatCount="indefinite"'
+        items.append(
+            f'<g transform="translate({x:.0f} {y:.0f}) scale({rng.uniform(.7, 1.3):.2f})">'
+            f'<g opacity="0"><animate attributeName="opacity" values="1;0;0" {timing}/>'
+            f'<animateTransform attributeName="transform" type="scale" values=".1;1;1" {timing}/>'
+            f'<use href="#season-burst" stroke="{rng.choice(SPARK_COLORS)}"/></g></g>'
+        )
+    return "".join(items)
+
+
 def layer(season, width, top, height, game_y, game_height):
     """Returns the SVG of the season, or nothing outside of them. Sits under the CRT layers."""
     if season is None:
@@ -204,6 +234,8 @@ def layer(season, width, top, height, game_y, game_height):
         art = drum_strip(game_y + game_height, width)
     elif season == "summer":
         art = wave_strip(game_y + game_height, width)
+    elif season == "semana-grande":
+        art = fireworks(width, top, height)
     elif season == "halloween":
         art = bats(width, top, height)
     elif season == "autumn":
