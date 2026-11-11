@@ -16,8 +16,6 @@ An image in a README cannot run code, so it cannot choose a random game on each 
 
 Add more themes to `scripts/seasons.py`. Candidates:
 
-- Tamborrada in Donostia (20 January).
 - Carnival.
-- Halloween.
 
 Dates that change each year need a fixed window, like Zinemaldia, or a table to update.
