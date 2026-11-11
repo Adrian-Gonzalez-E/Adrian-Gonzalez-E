@@ -43,7 +43,7 @@ The button under the image opens a pre-filled issue. It stays off during the gam
 
 ### Seasons
 
-Snow falls from 1 December to 6 January, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival. To preview one on any date, run the workflow manually and choose it in the `season` input.
+Snow falls from 1 December to 6 January, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival, and bats fly from 25 to 31 October for Halloween. To preview one on any date, run the workflow manually and choose it in the `season` input.
 
 ## Secrets
 
