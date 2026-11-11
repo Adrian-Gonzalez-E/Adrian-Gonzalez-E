@@ -1,6 +1,7 @@
 """Date-based seasonal layers: snow, spring flowers, Tamborrada drums, a film strip for Zinemaldia and bats for Halloween."""
 import math
 import random
+
 SEASONS = ("winter", "spring", "tamborrada", "zinemaldia", "halloween")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
