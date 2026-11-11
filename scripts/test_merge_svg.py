@@ -60,7 +60,8 @@ assert seasons.current(date(2031, 1, 20)) == "tamborrada" and seasons.current(da
 assert seasons.current(date(2030, 6, 20)) is None and seasons.current(date(2030, 6, 21)) == "summer"
 assert seasons.current(date(2030, 6, 27)) == "summer" and seasons.current(date(2030, 6, 28)) is None
 assert seasons.current(date(2030, 9, 14)) is None and seasons.current(date(2030, 9, 15)) == "zinemaldia"
-assert seasons.current(date(2030, 10, 1)) is None
+assert seasons.current(date(2030, 9, 30)) == "zinemaldia" and seasons.current(date(2030, 10, 1)) == "autumn"
+assert seasons.current(date(2030, 10, 7)) == "autumn" and seasons.current(date(2030, 10, 8)) is None
 assert seasons.current(date(2030, 10, 24)) is None and seasons.current(date(2030, 10, 25)) == "halloween"
 assert seasons.current(date(2030, 10, 31)) == "halloween" and seasons.current(date(2030, 11, 1)) is None
 assert seasons.resolve("auto", date(2030, 6, 1)) is None and seasons.resolve("", date(2030, 12, 1)) == "winter"
@@ -72,10 +73,11 @@ except ValueError:
     pass
 SNOW_MARK = 'id="season-flake"'
 assert (SNOW_MARK not in output and "ZINEMALDIA" not in output and "UDABERRIA" not in output
-        and "TAMBORRADA" not in output and "season-bat" not in output and "SUMMER IS HERE" not in output)
+        and "TAMBORRADA" not in output and "season-bat" not in output and "SUMMER IS HERE" not in output
+        and "season-leaf" not in output)
 for season, mark in (("winter", SNOW_MARK), ("spring", "SPRING IS HERE"),
                      ("tamborrada", "TAMBORRADA · DONOSTIA"), ("summer", "SUMMER IS HERE"),
-                     ("zinemaldia", "ZINEMALDIA SEASON"),
+                     ("zinemaldia", "ZINEMALDIA SEASON"), ("autumn", 'id="season-leaf"'),
                      ("halloween", 'id="season-bat"')):
     themed = merge(GALAGA, TERMINAL, 42, 400, 7, season)
     assert mark in themed and themed.index(mark) < themed.index("url(#ra-scan)\"/>"), season

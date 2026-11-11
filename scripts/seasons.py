@@ -1,9 +1,11 @@
-"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, summer waves, a film strip for Zinemaldia and bats for Halloween."""
+"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, summer waves, a film strip for Zinemaldia, falling leaves in autumn and bats for Halloween."""
 import math
 import random
 
-SEASONS = ("winter", "spring", "tamborrada", "summer", "zinemaldia", "halloween")
+SEASONS = ("winter", "spring", "tamborrada", "summer", "zinemaldia", "autumn", "halloween")
 SNOWFLAKES = 26
+LEAVES = 18
+LEAF_COLORS = ("#c8553d", "#e08e2b", "#d9b23f", "#8c3b1e")
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
 FLOWER_GAP = 20
@@ -13,7 +15,7 @@ WAVE_LENGTH = 40
 BATS = 9
 # Right wing with a scalloped edge; the left one is its mirror.
 WING = "M1-1Q6-6 13-3Q10-1 10 2Q8 0 6 2Q4 0 1 2Z"
-THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "summer": "#ffb627", "zinemaldia": "#f5c542", "halloween": "#ff7518"}
+THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "summer": "#ffb627", "zinemaldia": "#f5c542", "autumn": "#e08e2b", "halloween": "#ff7518"}
 
 
 def current(today):
@@ -31,6 +33,9 @@ def current(today):
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
+    # Autumn starts around 22 September, but Zinemaldia owns that week: its first week of October instead.
+    if today.month == 10 and today.day <= 7:
+        return "autumn"
     if today.month == 10 and today.day >= 25:
         return "halloween"
     return None
@@ -59,23 +64,34 @@ def flake_path():
     return "".join(segments)
 
 
-def snow(width, top, height):
+def falling(defs, shapes, count, width, top, height):
+    """Shapes falling and spinning over the whole window; shapes are attributes of a <use> and take turns."""
     rng = random.Random(7)  # Fixed seed: daily regenerations do not change the image without a reason.
-    flakes = [f'<defs><path id="season-flake" d="{flake_path()}" fill="none" stroke="#dff6ff" '
-              f'stroke-width="1.2" stroke-linecap="round"/></defs>']
-    for _ in range(SNOWFLAKES):
+    items = [f'<defs>{defs}</defs>']
+    for i in range(count):
         x = rng.uniform(0, width)
         duration = rng.uniform(9, 18)
         spin = rng.choice((-1, 1)) * 360
-        flakes.append(
+        items.append(
             f'<g opacity="{rng.uniform(.65, 1):.2f}"><animateTransform attributeName="transform" type="translate" '
             f'from="{x:.0f} {top - 10}" to="{x:.0f} {top + height + 10}" dur="{duration:.1f}s" '
             f'begin="-{rng.uniform(0, duration):.1f}s" repeatCount="indefinite"/>'
             f'<g><animateTransform attributeName="transform" type="rotate" from="0" to="{spin}" '
             f'dur="{rng.uniform(8, 16):.1f}s" repeatCount="indefinite"/>'
-            f'<use href="#season-flake" transform="scale({rng.uniform(.65, 1.35):.2f})"/></g></g>'
+            f'<use {shapes[i % len(shapes)]} transform="scale({rng.uniform(.65, 1.35):.2f})"/></g></g>'
         )
-    return "".join(flakes)
+    return "".join(items)
+
+
+def snow(width, top, height):
+    flake = (f'<path id="season-flake" d="{flake_path()}" fill="none" stroke="#dff6ff" '
+             f'stroke-width="1.2" stroke-linecap="round"/>')
+    return falling(flake, ['href="#season-flake"'], SNOWFLAKES, width, top, height)
+
+
+def leaves(width, top, height):
+    leaf = '<path id="season-leaf" d="M0-7C5-3 4 4 0 7C-4 4-5-3 0-7Z"/>'
+    return falling(leaf, [f'href="#season-leaf" fill="{c}"' for c in LEAF_COLORS], LEAVES, width, top, height)
 
 
 def film_strip(y, width):
@@ -190,6 +206,8 @@ def layer(season, width, top, height, game_y, game_height):
         art = wave_strip(game_y + game_height, width)
     elif season == "halloween":
         art = bats(width, top, height)
+    elif season == "autumn":
+        art = leaves(width, top, height)
     else:
         # Just below the game: inside it, the strip would cover the ship.
         art = film_strip(game_y + game_height, width)
