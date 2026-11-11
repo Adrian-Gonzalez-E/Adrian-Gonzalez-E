@@ -1,18 +1,19 @@
-"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, a film strip for Zinemaldia and bats for Halloween."""
+"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums, summer waves, a film strip for Zinemaldia and bats for Halloween."""
 import math
 import random
 
-SEASONS = ("winter", "spring", "tamborrada", "zinemaldia", "halloween")
+SEASONS = ("winter", "spring", "tamborrada", "summer", "zinemaldia", "halloween")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
 FLOWER_GAP = 20
 PETALS = ("#ff9ecf", "#fff4f8", "#c9a7ff")
 DRUMS = 24
+WAVE_LENGTH = 40
 BATS = 9
 # Right wing with a scalloped edge; the left one is its mirror.
 WING = "M1-1Q6-6 13-3Q10-1 10 2Q8 0 6 2Q4 0 1 2Z"
-THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "zinemaldia": "#f5c542", "halloween": "#ff7518"}
+THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "summer": "#ffb627", "zinemaldia": "#f5c542", "halloween": "#ff7518"}
 
 
 def current(today):
@@ -24,6 +25,9 @@ def current(today):
     # The Tamborrada drums for 24 hours from midnight on 20 January; the 19th shows it on its eve.
     if today.month == 1 and today.day in (19, 20):
         return "tamborrada"
+    # The first week of summer, from the June solstice.
+    if today.month == 6 and 21 <= today.day <= 27:
+        return "summer"
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
@@ -153,6 +157,23 @@ def drum_strip(y, width):
     )
 
 
+def wave_strip(y, width):
+    """Two rows of waves rolling in opposite directions, like La Concha beach."""
+    def wave(level, color, seconds, direction):
+        crests = "".join(f"q{WAVE_LENGTH / 4:g} -4 {WAVE_LENGTH / 2:g} 0t{WAVE_LENGTH / 2:g} 0"
+                         for _ in range(width // WAVE_LENGTH + 3))
+        return (f'<g><animateTransform attributeName="transform" type="translate" from="0 0" '
+                f'to="{direction * WAVE_LENGTH} 0" dur="{seconds}s" repeatCount="indefinite"/>'
+                f'<path d="M-{WAVE_LENGTH} {y + level}{crests}" stroke="{color}" stroke-width="1.5" fill="none"/></g>')
+    return (
+        f'<rect y="{y}" width="{width}" height="{STRIP_HEIGHT}" fill="#021624"/>'
+        f'{wave(7, "#3a8fd6", 3, 1)}{wave(13, "#7fd3ff", 2, -1)}'
+        f'<rect x="{width / 2 - 125:g}" y="{y}" width="250" height="{STRIP_HEIGHT}" fill="#021624"/>'
+        f'<text x="{width / 2:g}" y="{y + 13}" text-anchor="middle" class="ra-mb" fill="#ffb627" style="font-size:11px">'
+        f'SUMMER IS HERE · UDA</text>'
+    )
+
+
 def layer(season, width, top, height, game_y, game_height):
     """Returns the SVG of the season, or nothing outside of them. Sits under the CRT layers."""
     if season is None:
@@ -165,6 +186,8 @@ def layer(season, width, top, height, game_y, game_height):
         art = flower_strip(game_y + game_height, width)
     elif season == "tamborrada":
         art = drum_strip(game_y + game_height, width)
+    elif season == "summer":
+        art = wave_strip(game_y + game_height, width)
     elif season == "halloween":
         art = bats(width, top, height)
     else:
