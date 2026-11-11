@@ -18,6 +18,5 @@ Add more themes to `scripts/seasons.py`. Candidates:
 
 - Carnival.
 - Semana Grande in Donostia (August).
-- Halloween.
 
 Dates that change each year need a fixed window, like Zinemaldia, or a table to update.
