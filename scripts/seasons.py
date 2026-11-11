@@ -1,20 +1,24 @@
-"""Date-based seasonal layers: snow in winter, a film strip during Zinemaldia and bats for Halloween."""
+"""Date-based seasonal layers: snow in winter, drums for the Tamborrada, a film strip during Zinemaldia and bats for Halloween."""
 import math
 import random
 
-SEASONS = ("winter", "zinemaldia", "halloween")
+SEASONS = ("winter", "tamborrada", "zinemaldia", "halloween")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
+DRUMS = 24
 BATS = 9
 # Right wing with a scalloped edge; the left one is its mirror.
 WING = "M1-1Q6-6 13-3Q10-1 10 2Q8 0 6 2Q4 0 1 2Z"
-THEMES = {"winter": "#9fe8ff", "zinemaldia": "#f5c542", "halloween": "#ff7518"}
+THEMES = {"winter": "#9fe8ff", "tamborrada": "#5aa0ff", "zinemaldia": "#f5c542", "halloween": "#ff7518"}
 
 
 def current(today):
     if today.month == 12 or (today.month == 1 and today.day <= 6):
         return "winter"
+    # The Tamborrada drums for 24 hours from midnight on 20 January; the 19th shows it on its eve.
+    if today.month == 1 and today.day in (19, 20):
+        return "tamborrada"
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
@@ -101,6 +105,26 @@ def bats(width, top, height):
     return "".join(items)
 
 
+def drum_strip(y, width):
+    """A row of drums that beat in turn, like the companies marching through Donostia."""
+    gap = width / DRUMS
+    drums = "".join(
+        f'<g transform="translate({gap * (i + .5):.0f} {y + 10})"><g>'
+        f'<animateTransform attributeName="transform" type="translate" values="0 0;0 -2;0 0" dur=".5s" '
+        f'begin="{i % 2 * .25:g}s" repeatCount="indefinite"/>'
+        f'<rect x="-6" y="-4" width="12" height="9" rx="1" fill="#1d3f8f" stroke="#fff" stroke-width=".8"/>'
+        f'<path d="M-6-4l4 9m0-9l4 9m0-9l4 9" stroke="#fff" stroke-width=".6"/>'
+        f'<ellipse cy="-4" rx="6" ry="1.6" fill="#f4f4f4"/></g></g>'
+        for i in range(DRUMS)
+    )
+    return (
+        f'<rect y="{y}" width="{width}" height="{STRIP_HEIGHT}" fill="#06102a"/>{drums}'
+        f'<rect x="{width / 2 - 125:g}" y="{y}" width="250" height="{STRIP_HEIGHT}" fill="#06102a"/>'
+        f'<text x="{width / 2:g}" y="{y + 13}" text-anchor="middle" class="ra-mb" fill="#5aa0ff" style="font-size:11px">'
+        f'TAMBORRADA · DONOSTIA · 20 JANUARY</text>'
+    )
+
+
 def layer(season, width, top, height, game_y, game_height):
     """Returns the SVG of the season, or nothing outside of them. Sits under the CRT layers."""
     if season is None:
@@ -109,6 +133,8 @@ def layer(season, width, top, height, game_y, game_height):
     theme = f'<style>.ra-term .ra-acc{{fill:{color}}}.ra-term .ra-cur{{fill:{color}}}</style>'
     if season == "winter":
         art = snow(width, top, height)
+    elif season == "tamborrada":
+        art = drum_strip(game_y + game_height, width)
     elif season == "halloween":
         art = bats(width, top, height)
     else:
