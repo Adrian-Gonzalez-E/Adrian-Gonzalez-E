@@ -8,7 +8,11 @@ on:
       season:
         description: Season to force in this run, to preview it on any date
         type: choice
+<<<<<<< HEAD
         options: [auto, winter, spring, zinemaldia]
+=======
+        options: [auto, winter, tamborrada, zinemaldia]
+>>>>>>> origin/main
         default: auto
   push:
     branches: [main]
