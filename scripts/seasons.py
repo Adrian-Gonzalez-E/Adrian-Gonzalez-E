@@ -1,17 +1,23 @@
-"""Date-based seasonal layers: snow in winter and a film strip during Zinemaldia."""
+"""Date-based seasonal layers: snow in winter, fireworks for Semana Grande and a film strip during Zinemaldia."""
 import math
 import random
 
-SEASONS = ("winter", "zinemaldia")
+SEASONS = ("winter", "semana-grande", "zinemaldia")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
-THEMES = {"winter": "#9fe8ff", "zinemaldia": "#f5c542"}
+FIREWORKS = 8
+SPARKS = 14
+SPARK_COLORS = ("#ff4d6d", "#ffd23f", "#4dd9ff", "#9dff6a", "#ff9ef0", "#ffffff")
+THEMES = {"winter": "#9fe8ff", "semana-grande": "#ff4d6d", "zinemaldia": "#f5c542"}
 
 
 def current(today):
     if today.month == 12 or (today.month == 1 and today.day <= 6):
         return "winter"
+    # shortcut: fixed window around 15 August, while the festival week moves each year; adjust it if it moves out of it.
+    if today.month == 8 and 10 <= today.day <= 17:
+        return "semana-grande"
     # shortcut: fixed window around the festival, whose dates change yearly; adjust it if they move out of it.
     if today.month == 9 and today.day >= 15:
         return "zinemaldia"
@@ -74,6 +80,30 @@ def film_strip(y, width):
     )
 
 
+def fireworks(width, top, height):
+    """Bursts of sparks that open and fade at different places and times, like the fireworks over La Concha."""
+    rng = random.Random(15)  # Fixed seed, like the snow.
+    sparks = "".join(
+        f'<path d="M{6 * math.cos(math.radians(a)):.1f} {6 * math.sin(math.radians(a)):.1f}'
+        f'L{30 * math.cos(math.radians(a)):.1f} {30 * math.sin(math.radians(a)):.1f}"/>'
+        for a in range(0, 360, 360 // SPARKS)
+    )
+    items = [f'<defs><g id="season-burst" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 5">{sparks}</g></defs>']
+    for _ in range(FIREWORKS):
+        x, y = rng.uniform(40, width - 40), rng.uniform(top + 40, top + height - 40)
+        duration = rng.uniform(2.5, 4)
+        begin = f'begin="-{rng.uniform(0, duration):.1f}s"'
+        # Opens in the first 40% of the cycle and stays dark for the rest, until the next burst.
+        timing = f'keyTimes="0;.4;1" dur="{duration:.1f}s" {begin} repeatCount="indefinite"'
+        items.append(
+            f'<g transform="translate({x:.0f} {y:.0f}) scale({rng.uniform(.7, 1.3):.2f})">'
+            f'<g opacity="0"><animate attributeName="opacity" values="1;0;0" {timing}/>'
+            f'<animateTransform attributeName="transform" type="scale" values=".1;1;1" {timing}/>'
+            f'<use href="#season-burst" stroke="{rng.choice(SPARK_COLORS)}"/></g></g>'
+        )
+    return "".join(items)
+
+
 def layer(season, width, top, height, game_y, game_height):
     """Returns the SVG of the season, or nothing outside of them. Sits under the CRT layers."""
     if season is None:
@@ -82,6 +112,8 @@ def layer(season, width, top, height, game_y, game_height):
     theme = f'<style>.ra-term .ra-acc{{fill:{color}}}.ra-term .ra-cur{{fill:{color}}}</style>'
     if season == "winter":
         art = snow(width, top, height)
+    elif season == "semana-grande":
+        art = fireworks(width, top, height)
     else:
         # Just below the game: inside it, the strip would cover the ship.
         art = film_strip(game_y + game_height, width)

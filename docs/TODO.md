@@ -18,7 +18,6 @@ Add more themes to `scripts/seasons.py`. Candidates:
 
 - Tamborrada in Donostia (20 January).
 - Carnival.
-- Semana Grande in Donostia (August).
 - Halloween.
 
 Dates that change each year need a fixed window, like Zinemaldia, or a table to update.
