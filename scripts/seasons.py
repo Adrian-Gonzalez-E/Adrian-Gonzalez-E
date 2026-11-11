@@ -1,18 +1,23 @@
-"""Date-based seasonal layers: snow in winter, drums for the Tamborrada and a film strip during Zinemaldia."""
+"""Date-based seasonal layers: snow, spring flowers, Tamborrada drums and a film strip for Zinemaldia."""
 import math
 import random
 
-SEASONS = ("winter", "tamborrada", "zinemaldia")
+SEASONS = ("winter", "spring", "tamborrada", "zinemaldia")
 SNOWFLAKES = 26
 FLAKE_RADIUS = 7
 STRIP_HEIGHT = 18
+FLOWER_GAP = 20
+PETALS = ("#ff9ecf", "#fff4f8", "#c9a7ff")
 DRUMS = 24
-THEMES = {"winter": "#9fe8ff", "tamborrada": "#5aa0ff", "zinemaldia": "#f5c542"}
+THEMES = {"winter": "#9fe8ff", "spring": "#8fe388", "tamborrada": "#5aa0ff", "zinemaldia": "#f5c542"}
 
 
 def current(today):
     if today.month == 12 or (today.month == 1 and today.day <= 6):
         return "winter"
+    # The first week of spring, from the March equinox.
+    if today.month == 3 and 20 <= today.day <= 26:
+        return "spring"
     # The Tamborrada drums for 24 hours from midnight on 20 January; the 19th shows it on its eve.
     if today.month == 1 and today.day in (19, 20):
         return "tamborrada"
@@ -78,6 +83,29 @@ def film_strip(y, width):
     )
 
 
+def flower_strip(y, width):
+    """A row of flowers swaying in the breeze, below the game."""
+    rng = random.Random(3)  # Fixed seed, like the snow.
+    base = y + STRIP_HEIGHT - 1
+    petals = "".join(f'<circle cx="{2.4 * math.cos(math.radians(a)):.1f}" cy="{2.4 * math.sin(math.radians(a)):.1f}" r="1.8"/>'
+                     for a in range(0, 360, 72))
+    flowers = [f'<defs><g id="season-flower">{petals}<circle r="1.3" fill="#ffd23f"/></g></defs>']
+    for x in range(FLOWER_GAP // 2, width, FLOWER_GAP):
+        swing = rng.uniform(6, 12)
+        flowers.append(
+            f'<g transform="translate({x} {base})"><g><animateTransform attributeName="transform" type="rotate" '
+            f'values="-{swing:.0f};{swing:.0f};-{swing:.0f}" dur="{rng.uniform(2.5, 4):.1f}s" repeatCount="indefinite"/>'
+            f'<path d="M0 0V-10" stroke="#3fae4f" stroke-width="1.2"/>'
+            f'<use href="#season-flower" y="-11" fill="{rng.choice(PETALS)}"/></g></g>'
+        )
+    return (
+        f'<rect y="{y}" width="{width}" height="{STRIP_HEIGHT}" fill="#04140a"/>{"".join(flowers)}'
+        f'<rect x="{width / 2 - 125:g}" y="{y}" width="250" height="{STRIP_HEIGHT}" fill="#04140a"/>'
+        f'<text x="{width / 2:g}" y="{y + 13}" text-anchor="middle" class="ra-mb" fill="#8fe388" style="font-size:11px">'
+        f'SPRING IS HERE · UDABERRIA</text>'
+    )
+
+
 def drum_strip(y, width):
     """A row of drums that beat in turn, like the companies marching through Donostia."""
     gap = width / DRUMS
@@ -106,6 +134,8 @@ def layer(season, width, top, height, game_y, game_height):
     theme = f'<style>.ra-term .ra-acc{{fill:{color}}}.ra-term .ra-cur{{fill:{color}}}</style>'
     if season == "winter":
         art = snow(width, top, height)
+    elif season == "spring":
+        art = flower_strip(game_y + game_height, width)
     elif season == "tamborrada":
         art = drum_strip(game_y + game_height, width)
     else:
