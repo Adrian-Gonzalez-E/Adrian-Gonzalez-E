@@ -43,11 +43,7 @@ The button under the image opens a pre-filled issue. It stays off during the gam
 
 ### Seasons
 
-<<<<<<< HEAD
-Snow falls from 1 December to 6 January, flowers sway from 20 to 26 March for the start of spring, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival. To preview one on any date, run the workflow manually and choose it in the `season` input.
-=======
-Snow falls from 1 December to 6 January, a row of drums beats on 19 and 20 January for the Tamborrada, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival. To preview one on any date, run the workflow manually and choose it in the `season` input.
->>>>>>> origin/main
+Snow falls from 1 December to 6 January, flowers sway from 20 to 26 March for the start of spring, a row of drums beats on 19 and 20 January for the Tamborrada, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival. To preview one on any date, run the workflow manually and choose it in the `season` input.
 
 ## Secrets
 
