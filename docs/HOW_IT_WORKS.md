@@ -43,7 +43,7 @@ The button under the image opens a pre-filled issue. It stays off during the gam
 
 ### Seasons
 
-Snow falls from 1 December to 6 January, waves roll from 21 to 27 June for the start of summer, and a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival. To preview one on any date, run the workflow manually and choose it in the `season` input.
+Snow falls from 1 December to 6 January, flowers sway from 20 to 26 March for the start of spring, a row of drums beats on 19 and 20 January for the Tamborrada, waves roll from 21 to 27 June for the start of summer, a film strip plays from 15 to 30 September for the [Zinemaldia](https://www.sansebastianfestival.com/) film festival, and bats fly from 25 to 31 October for Halloween. To preview one on any date, run the workflow manually and choose it in the `season` input.
 
 ## Secrets
 
