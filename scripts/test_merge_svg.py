@@ -53,6 +53,8 @@ assert "Stars" not in output and "username" not in output and 'x="548" y="262"' 
 # Seasons: exact limits, forced preview and valid XML; nothing is added outside of them.
 assert seasons.current(date(2030, 11, 30)) is None and seasons.current(date(2030, 12, 1)) == "winter"
 assert seasons.current(date(2031, 1, 6)) == "winter" and seasons.current(date(2031, 1, 7)) is None
+assert seasons.current(date(2030, 3, 19)) is None and seasons.current(date(2030, 3, 20)) == "spring"
+assert seasons.current(date(2030, 3, 26)) == "spring" and seasons.current(date(2030, 3, 27)) is None
 assert seasons.current(date(2031, 1, 18)) is None and seasons.current(date(2031, 1, 19)) == "tamborrada"
 assert seasons.current(date(2031, 1, 20)) == "tamborrada" and seasons.current(date(2031, 1, 21)) is None
 assert seasons.current(date(2030, 9, 14)) is None and seasons.current(date(2030, 9, 15)) == "zinemaldia"
@@ -67,9 +69,11 @@ try:
 except ValueError:
     pass
 SNOW_MARK = 'id="season-flake"'
-assert SNOW_MARK not in output and "ZINEMALDIA" not in output and "TAMBORRADA" not in output and "season-bat" not in output
-for season, mark in (("winter", SNOW_MARK), ("tamborrada", "TAMBORRADA · DONOSTIA"),
-                     ("zinemaldia", "ZINEMALDIA SEASON"), ("halloween", 'id="season-bat"')):
+assert (SNOW_MARK not in output and "ZINEMALDIA" not in output and "UDABERRIA" not in output
+        and "TAMBORRADA" not in output and "season-bat" not in output)
+for season, mark in (("winter", SNOW_MARK), ("spring", "SPRING IS HERE"),
+                     ("tamborrada", "TAMBORRADA · DONOSTIA"), ("zinemaldia", "ZINEMALDIA SEASON"),
+                     ("halloween", 'id="season-bat"')):
     themed = merge(GALAGA, TERMINAL, 42, 400, 7, season)
     assert mark in themed and themed.index(mark) < themed.index("url(#ra-scan)\"/>"), season
 
